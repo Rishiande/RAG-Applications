@@ -124,7 +124,7 @@ def main():
             st.session_state.input = ""
         
         # Specify the PDF file paths for college information
-        pdf_file_paths = [r"C:\Users\rishi\Desktop\GCP\RCEE.pdf"]
+        pdf_file_paths = [r"RCEE.pdf"]
         
         # Process the specified PDF files once when the app starts
         raw_text = get_pdf_text(pdf_file_paths)
@@ -192,12 +192,12 @@ def main():
             
             # Set fixed paths for CSV files specific to AI & DS 2021-2025 batch 
             csv_paths_ai_ds_2021_2025 = {
-                "1-1": r"C:\Users\rishi\Desktop\GCP\2021\1-1sem.csv",
-                "1-2": r"C:\Users\rishi\Desktop\GCP\2021\1-2sem.csv",
-                "2-1": r"C:\Users\rishi\Desktop\GCP\2021\2-1sem.csv",
-                "2-2": r"C:\Users\rishi\Desktop\GCP\2021\2-2sem.csv",
-                "3-1": r"C:\Users\rishi\Desktop\GCP\2021\3-1sem.csv",
-                "3-2": r"C:\Users\rishi\Desktop\GCP\2021\3-2sem.csv",
+                "1-1": r"1-1sem.csv",
+                "1-2": r"1-2sem.csv",
+                "2-1": r"2-1sem.csv",
+                "2-2": r"2-2sem.csv",
+                "3-1": r"3-1sem.csv",
+                "3-2": r"3-2sem.csv",
             }
 
             semester_options = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2"]
@@ -257,12 +257,12 @@ def main():
 
             # Set fixed paths for CSV files specific to AI & DS 2020-2024 batch 
             csv_paths_ai_ds_2020_2024 = {
-                "1-1": r"C:/Users/rishi/Desktop/GCP/2020/1-1sems.csv",
-                "1-2": r"C:/Users/rishi/Desktop/GCP/2020/1-2sems.csv",
-                "2-1": r"C:/Users/rishi/Desktop/GCP/2020/2-1sems.csv",
-                "2-2": r"C:/Users/rishi/Desktop/GCP/2020/2-2sems.csv",
-                "3-1": r"C:/Users/rishi/Desktop/GCP/2020/3-1sems.csv",
-                "3-2": r"C:/Users/rishi/Desktop/GCP/2020/3-2sems.csv"
+                "1-1": r"1-1sems.csv",
+                "1-2": r"1-2sems.csv",
+                "2-1": r"2-1sems.csv",
+                "2-2": r"2-2sems.csv",
+                "3-1": r"3-1sems.csv",
+                "3-2": r"3-2sems.csv"
             }
 
             combined_data_2020_24 = []
@@ -320,7 +320,7 @@ def main():
         st.title("Backlogs Comparison")
         
         # Hardcoded CSV file path for backlog data
-        csv_path = r"C:\Users\rishi\Desktop\Vijaya\Backlog.csv"
+        csv_path = r"Backlog.csv"
         
         # Extract CSV data
         csv_data = extract_csv(csv_path)
