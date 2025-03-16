@@ -216,7 +216,7 @@ def main():
                         
                         if is_valid_roll_number(roll_number_input, combined_data_2021_2025):
                             model_2021_25= genai.GenerativeModel(
-                                model_name="gemini-1.5-pro-latest",
+                                model_name="gemini-1.5-flash-002",
                                 generation_config={
                                     "temperature": 1,
                                     "top_p": 0.95,
@@ -280,7 +280,7 @@ def main():
                         
                         if is_valid_roll_number(roll_number_input_to24, combined_data_2020_24):
                             model_to24= genai.GenerativeModel(
-                                model_name="gemini-1.5-pro-latest",
+                                model_name="gemini-1.5-flash-002",
                                 generation_config={
                                     "temperature": 1,
                                     "top_p": 0.95,
