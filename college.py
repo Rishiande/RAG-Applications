@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import streamlit as st
 import re
 import csv
@@ -10,12 +11,11 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
 
-# Directly insert your Google API key here
-GOOGLE_API_KEY = "AIzaSyBdcGq8-1zGe6ioAUN4DTBZfAJ9JFZEgpA"  # Replace with your actual API key
+# Load environment variables from .env file
+load_dotenv()
 
-# Set up Google Generative AI
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+# Configure Google Generative AI using environment variable
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Function to extract text from PDF files for college chatbot
 def get_pdf_text(pdf_docs):
