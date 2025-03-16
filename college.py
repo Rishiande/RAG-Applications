@@ -72,14 +72,21 @@ def user_input(user_question):
 
 # Function to extract data from CSV files for student marks analysis
 def extract_csv(pathname: str) -> list[str]:
-    parts = [f"---- START OF CSV {pathname} ---"]
-    
-    with open(pathname, "r", newline="") as csvfile:
-        csv_reader = csv.reader(csvfile)
-        for row in csv_reader:
-            parts.append(" ".join(row))  # Join the row into a single string
-            
-    return parts
+    parts = []
+    try:
+        with open(pathname, "r", newline="") as csvfile:
+            csv_reader = csv.reader(csvfile)
+            header = next(csv_reader)
+            parts.append(",".join(header))  # Add header to data
+            for row in csv_reader:
+                parts.append(",".join(row))
+        return parts
+    except FileNotFoundError:
+        st.error(f"File not found: {pathname}")
+        return []
+    except Exception as e:
+        st.error(f"Error reading file: {e}")
+        return []
 
 # Function to validate roll number format and existence in data
 def is_valid_roll_number(roll_number: str, combined_data: list) -> bool:
@@ -90,13 +97,22 @@ def is_valid_roll_number(roll_number: str, combined_data: list) -> bool:
     
     return False
 
+# Function to load backlog data from CSV
+def load_backlog_data(path: str) -> list[dict]:
+    backlog_data = []
+    with open(path, "r", newline="") as csvfile:
+        csv_reader = csv.DictReader(csvfile)
+        for row in csv_reader:
+            backlog_data.append(row)
+    return backlog_data
+
 # Streamlit app UI setup
 def main():
     st.set_page_config(page_title="🎓 College & Student Marks Chatbot", layout="wide")
     
     # Sidebar navigation options
     st.sidebar.title("Navigation Bar")
-    app_mode = st.sidebar.selectbox("Choose an option:", ["College Info", "Student Marks"])
+    app_mode = st.sidebar.selectbox("Choose an option:", ["College Info", "Student Marks", "Backlogs Comparison"])
     
     if app_mode == "College Info":
         st.title("🎓 RCEE College Chatbot")
@@ -108,17 +124,12 @@ def main():
             st.session_state.input = ""
         
         # Specify the PDF file paths for college information
-        pdf_file_paths = [r"RCEE.pdf"]
+        pdf_file_paths = [r"C:\Users\rishi\Desktop\GCP\RCEE.pdf"]
         
         # Process the specified PDF files once when the app starts
         raw_text = get_pdf_text(pdf_file_paths)
         text_chunks = get_text_chunks(raw_text)
         get_vector_store(text_chunks)
-
-        # Display chat history for college chatbot
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
 
         # Define suggestions for college chatbot suggestions
         suggestions = [
@@ -129,14 +140,20 @@ def main():
             "📚 What academic accreditations does RCEE hold?"
         ]
         
-        # Display suggestion buttons in a horizontal layout
-        st.subheader("Quick Suggestions:")
-        cols = st.columns(len(suggestions))
+        # Create a fixed container for quick suggestions at the top
+        with st.container():
+            st.subheader("Quick Suggestions:")
+            cols = st.columns(len(suggestions))
+            
+            for i, suggestion in enumerate(suggestions):
+                if cols[i].button(suggestion):
+                    st.session_state["input"] = suggestion
         
-        for i, suggestion in enumerate(suggestions):
-            if cols[i].button(suggestion):
-                st.session_state["input"] = suggestion
-        
+        # Display chat history for college chatbot
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
         # Input box for user query at the bottom right, pre-filled with suggestion if clicked
         prompt = st.chat_input("Ask me anything about RCEE (e.g., 'What programs are offered?')") or st.session_state.input
         
@@ -175,12 +192,12 @@ def main():
             
             # Set fixed paths for CSV files specific to AI & DS 2021-2025 batch 
             csv_paths_ai_ds_2021_2025 = {
-                "1-1": r"1-1sem.csv",
-                "1-2": r"1-2sem.csv",
-                "2-1": r"2-1sem.csv",
-                "2-2": r"2-2sem.csv",
-                "3-1": r"3-1sem.csv",
-                "3-2": r"3-2sem.csv",
+                "1-1": r"C:\Users\rishi\Desktop\GCP\2021\1-1sem.csv",
+                "1-2": r"C:\Users\rishi\Desktop\GCP\2021\1-2sem.csv",
+                "2-1": r"C:\Users\rishi\Desktop\GCP\2021\2-1sem.csv",
+                "2-2": r"C:\Users\rishi\Desktop\GCP\2021\2-2sem.csv",
+                "3-1": r"C:\Users\rishi\Desktop\GCP\2021\3-1sem.csv",
+                "3-2": r"C:\Users\rishi\Desktop\GCP\2021\3-2sem.csv",
             }
 
             semester_options = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2"]
@@ -240,12 +257,12 @@ def main():
 
             # Set fixed paths for CSV files specific to AI & DS 2020-2024 batch 
             csv_paths_ai_ds_2020_2024 = {
-                r"1-1": r"1-1sems.csv",
-                r"1-2": r"1-2sems.csv",
-                r"2-1": r"2-1sems.csv",
-                r"2-2": r"2-2sems.csv",
-                r"3-1": r"3-1sems.csv",
-                r"3-2": r"3-2sems.csv"
+                "1-1": r"C:/Users/rishi/Desktop/GCP/2020/1-1sems.csv",
+                "1-2": r"C:/Users/rishi/Desktop/GCP/2020/1-2sems.csv",
+                "2-1": r"C:/Users/rishi/Desktop/GCP/2020/2-1sems.csv",
+                "2-2": r"C:/Users/rishi/Desktop/GCP/2020/2-2sems.csv",
+                "3-1": r"C:/Users/rishi/Desktop/GCP/2020/3-1sems.csv",
+                "3-2": r"C:/Users/rishi/Desktop/GCP/2020/3-2sems.csv"
             }
 
             combined_data_2020_24 = []
@@ -298,6 +315,112 @@ def main():
                         st.error("""It looks like you forgot to include your roll number in your question. Please make sure to mention it!""")
                 else:
                     st.warning("Please enter a question before submitting.")
+
+    elif app_mode == "Backlogs Comparison":
+        st.title("Backlogs Comparison")
+        
+        # Hardcoded CSV file path for backlog data
+        csv_path = r"C:\Users\rishi\Desktop\Vijaya\Backlog.csv"
+        
+        # Extract CSV data
+        csv_data = extract_csv(csv_path)
+        
+        if csv_data:
+            st.subheader("Backlog Data")
+            st.write(csv_data)  # Display the CSV data for reference
+            
+            # Initialize the Gemini model for Backlogs Comparison
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash-002",
+                generation_config={
+                    "temperature": 1,
+                    "top_p": 0.95,
+                    "top_k": 40,
+                    "max_output_tokens": 8192,
+                },
+                safety_settings=[
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                ]
+            )
+            
+            # User Input
+            user_question = st.text_input("💬 Ask a question about student backlogs (include Roll Number):")
+            
+            if st.button("🚀 Submit"):
+                if user_question:
+                    # Advanced Prompt
+                    prompt = f"""
+You are an intelligent academic assistant with access to student backlog data. Your task is to analyze and provide detailed information based on the provided CSV data. The data includes student roll numbers, cleared subjects, supply subjects, and grades.
+
+Below is the CSV data:
+
+{csv_data}
+
+TASK:
+1. **Identify the Roll Number**: Extract the roll number mentioned in the user's question.
+2. **Retrieve Student Data**: Locate the row corresponding to the roll number in the CSV data.
+3. **Cleared Subjects**:
+   - Count the number of cleared subjects.
+   - List the names of the cleared subjects.
+   - Provide the grades for each cleared subject.
+4. **Supply Subjects**:
+   - Count the number of supply subjects.
+   - List the names of the supply subjects.
+   - Provide the grades for each supply subject (if available).
+5. **Summary**:
+   - Provide a summary of the student's academic performance.
+   - Highlight any critical issues (e.g., too many supply subjects, low grades).
+6. **Formatting**:
+   - Use clear headings and bullet points for better readability.
+   - Ensure the response is well-structured and easy to understand.
+
+ADDITIONAL INSTRUCTIONS:
+- If the roll number is not found in the data, explicitly state that the roll number does not exist in the dataset.
+- If the data is incomplete or missing, mention this in the response.
+- Avoid unnecessary explanations or assumptions. Stick to the facts provided in the CSV data.
+
+QUESTION: {user_question}
+
+RESPONSE FORMAT:
+**Roll Number**: [Roll Number]
+**Cleared Subjects**:
+- [Subject 1]: [Grade]
+- [Subject 2]: [Grade]
+- ...
+**Number of Cleared Subjects**: [Count]
+**Supply Subjects**:
+- [Subject 1]: [Grade]
+- [Subject 2]: [Grade]
+- ...
+**Number of Supply Subjects**: [Count]
+**Summary**: [Brief summary of the student's performance]
+"""
+
+                    # Start conversation with CSV data
+                    convo = model.start_chat(history=[
+                        {"role": "user", "parts": [prompt]}
+                    ])
+
+                    response = convo.send_message(user_question)
+
+                    # Display Response
+                    if response and hasattr(response, 'candidates') and response.candidates:
+                        candidate_output = response.candidates[0]
+                        output_text_parts = candidate_output.content.parts
+                        output_text_lines = [part.text for part in output_text_parts]
+                        output_text_cleaned = "\n".join(output_text_lines).strip()
+
+                        st.success("### ✅ Response:")
+                        st.write(output_text_cleaned)
+                    else:
+                        st.warning("⚠️ No response generated. Please try again.")
+                else:
+                    st.warning("⚠️ Please enter a question before submitting.")
+        else:
+            st.error("❌ No data loaded from CSV. Please check the file path.")
 
 # Run the app 
 if __name__ == "__main__":
